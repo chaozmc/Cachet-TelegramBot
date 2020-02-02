@@ -24,4 +24,4 @@ Microsoft Visual Studio Community 2019
 
 ## License
 
-This project is licensed under the GPLv3 license.
+This project is licensed under the MIT license.
