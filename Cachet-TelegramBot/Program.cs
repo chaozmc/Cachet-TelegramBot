@@ -7,7 +7,6 @@ namespace Cachet_TelegramBot
 {
     class Program
     {
-
         private static Telegram.Bot.TelegramBotClient bot;
         private static BotSettings botSettings = new BotSettings();
         private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\settings.json";
@@ -42,7 +41,6 @@ namespace Cachet_TelegramBot
 
                         break;
 
-
                     default:
                         StartUp();
                         break;
@@ -56,9 +54,7 @@ namespace Cachet_TelegramBot
 
             Console.Clear();
             WriteMessageSlowly("Loading menue");
-
             DrawMainMenue();
-
         }
 
         #region "Support-Functions"
@@ -115,8 +111,6 @@ namespace Cachet_TelegramBot
                 Environment.Exit(2);
 
             }
-            
-
 
         }
 
