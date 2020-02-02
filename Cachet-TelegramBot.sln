@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29728.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cachet-TelegramBot", "Cachet-TelegramBot\Cachet-TelegramBot.csproj", "{AB569233-85F0-435B-A684-CE04B33B74BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AB569233-85F0-435B-A684-CE04B33B74BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB569233-85F0-435B-A684-CE04B33B74BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB569233-85F0-435B-A684-CE04B33B74BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB569233-85F0-435B-A684-CE04B33B74BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F7ED130-23D6-41EA-BF57-3B4AE5BE0135}
+	EndGlobalSection
+EndGlobal
