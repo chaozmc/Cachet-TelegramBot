@@ -12,6 +12,7 @@ namespace Cachet_TelegramBot
         private static CachetConnection MyCachetConnection = new CachetConnection("XXXXXXXXXXXXXXXXX", true, "XXXXXXXXXXXXXXXX");
         private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\settings.json";
         private const string newLine = "\r\n";
+        private static bool IShouldRun = false;
 
         static void Main(string[] args)
         {
@@ -152,6 +153,10 @@ namespace Cachet_TelegramBot
                 Console.WriteLine(ex.Message);
                 Environment.Exit(102);
             }
+
+            IShouldRun = true;
+            PrintReceiveScreenNonInteractive();
+
 
         }
 
@@ -328,15 +333,24 @@ namespace Cachet_TelegramBot
         {
             Console.Clear();
             bot.StartReceiving();
-
-
+            while (IShouldRun) {
+                Console.ReadKey();
+            }
         }
 
-        private static void ReceiveMessageNonInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
+        private static async void ReceiveMessageNonInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
-
-
-
+            string senderChatId = e.Message.Chat.Id.ToString();
+            string senderName = e.Message.Chat.FirstName;
+            string senderLastName = e.Message.Chat.LastName;
+            string msg = e.Message.Text;
+            Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
+            string answerConcatenated = "";
+            foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, MyCachetConnection))
+            {
+                answerConcatenated = answerConcatenated + s + newLine;
+            }
+            await SendMessageAsync(answerConcatenated);
         }
 
         private static async void ReceiveMessageInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
