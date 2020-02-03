@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Cachet-TelegramBot": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "-backgrounded"
     }
   }
 }

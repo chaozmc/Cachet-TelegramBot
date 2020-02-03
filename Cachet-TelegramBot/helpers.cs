@@ -8,7 +8,7 @@ namespace Helpers
 {
 	public class HelperFunctions
 	{
-
+		
 		public static BotSettings InitializeSettingsObject(string fromFile)
 		{
 
@@ -46,6 +46,17 @@ namespace Helpers
 			{
 				case "/list":
 					return ListOfComponents(cachetConnection);
+
+				case "/shutdown":
+					if (Cachet_TelegramBot.Program.IShouldRun) {
+						IList<string> temp2 = new List<string>();
+						temp2.Add("Good bye. Program will exit now");
+						Cachet_TelegramBot.Program.IShouldRun = false; 
+						return temp2;
+					}
+					return null;
+				
+
 
 
 				default:

@@ -12,10 +12,11 @@ namespace Cachet_TelegramBot
         private static CachetConnection MyCachetConnection = new CachetConnection("XXXXXXXXXXXXXXXXX", true, "XXXXXXXXXXXXXXXX");
         private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\settings.json";
         private const string newLine = "\r\n";
-        private static bool IShouldRun = false;
+        public static bool IShouldRun = false;
 
         static void Main(string[] args)
         {
+            Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " is running.");
             Console.WriteLine("");
             if (args.Length > 0) {
@@ -63,7 +64,11 @@ namespace Cachet_TelegramBot
             DrawMainMenue();
         }
 
-
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            Console.WriteLine("Application will exit now.");
+            Environment.Exit(0);
+        }
 
         #region "Support-Functions"
 
@@ -123,7 +128,7 @@ namespace Cachet_TelegramBot
         private static void StartUpNonInteractive()
         {
             //Check if settingsfile exists, if not unattend mode doesn't make sense
-            if (System.IO.File.Exists(mySettingsFilePath))
+            if (!System.IO.File.Exists(mySettingsFilePath))
             {
                 Console.WriteLine("Error. settings.json file not found. Unattend mode doesn't work");
                 Environment.Exit(100);
@@ -334,8 +339,9 @@ namespace Cachet_TelegramBot
             Console.Clear();
             bot.StartReceiving();
             while (IShouldRun) {
-                Console.ReadKey();
+                Console.ReadKey(true);
             }
+            Console.WriteLine("Program exiting.");
         }
 
         private static async void ReceiveMessageNonInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
