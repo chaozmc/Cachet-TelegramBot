@@ -137,6 +137,14 @@ public class CachetConnection
 		this.UseHTTPs = usehttp;
 		this.APIToken = token;
 	}
+
+	public CachetConnection()
+	{
+		this.CachetHost = "";
+		this.APIToken = "";
+		this.UseHTTPs = true;
+	}
+
 }
 
 

@@ -1,11 +1,10 @@
 ﻿using System;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Cachet_TelegramBot
 {
-    class Program
+    internal class Program
     {
         private static Telegram.Bot.TelegramBotClient bot;
         private static BotSettings botSettings = new BotSettings();
@@ -14,12 +13,13 @@ namespace Cachet_TelegramBot
         private const string newLine = "\r\n";
         public static bool IShouldRun = false;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " is running.");
             Console.WriteLine("");
-            if (args.Length > 0) {
+            if (args.Length > 0)
+            {
 
                 switch (args[0])
                 {
@@ -53,7 +53,7 @@ namespace Cachet_TelegramBot
                         break;
                 }
 
-            } 
+            }
             else
             {
                 StartUpInteractive();
@@ -85,11 +85,12 @@ namespace Cachet_TelegramBot
 
         }
 
-        private static void StartUpInteractive() {
+        private static void StartUpInteractive()
+        {
 
             WriteMessageSlowly("Try to read config from json file");
             Console.WriteLine("");
-            
+
             if (System.IO.File.Exists(mySettingsFilePath))
             {
                 try
@@ -166,7 +167,8 @@ namespace Cachet_TelegramBot
         }
 
 
-        private static void SetNewParameters(bool permanent) {
+        private static void SetNewParameters(bool permanent)
+        {
 
             Console.Clear();
 
@@ -190,7 +192,8 @@ namespace Cachet_TelegramBot
             {
                 Helpers.HelperFunctions.WriteSettingsToFile(botSettings, mySettingsFilePath);
                 Console.WriteLine("Written to file.");
-            } else
+            }
+            else
             {
                 Console.WriteLine("Saved only to memory. It will be lost on next startup");
             }
@@ -263,7 +266,7 @@ namespace Cachet_TelegramBot
                 "**********************************************************************************" + newLine +
                 "   Token : " + botSettings.StrToken + newLine +
                 "   ChatId: " + botSettings.StrAdminChatId + newLine +
-                "   Bot-ID: " + bot.GetMeAsync().Result.Id +  newLine +
+                "   Bot-ID: " + bot.GetMeAsync().Result.Id + newLine +
                 "   Status: " + bot.GetMeAsync().Result.FirstName + " is ready to serve, master!" + newLine +
                 "" + newLine;
             Console.Write(displayMenue);
@@ -288,7 +291,7 @@ namespace Cachet_TelegramBot
                 string tempChatId = Console.ReadLine();
                 await SendMessageAsync(msgToSend, tempChatId);
             }
-            else 
+            else
             {
                 Console.WriteLine("Enter the Message you want to send, and press <Enter>");
                 Console.WriteLine("");
@@ -326,7 +329,8 @@ namespace Cachet_TelegramBot
             Console.Clear();
             Console.WriteLine("Press <ESC> if you want to return to main menu");
             bot.StartReceiving();
-            while (Console.ReadKey().Key != ConsoleKey.Escape) {
+            while (Console.ReadKey().Key != ConsoleKey.Escape)
+            {
                 Console.ReadKey();
             }
             bot.StopReceiving();
@@ -338,7 +342,8 @@ namespace Cachet_TelegramBot
         {
             Console.Clear();
             bot.StartReceiving();
-            while (IShouldRun) {
+            while (IShouldRun)
+            {
                 Console.ReadKey(true);
             }
             Console.WriteLine("Program exiting.");
