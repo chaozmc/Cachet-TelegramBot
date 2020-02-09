@@ -2,17 +2,21 @@ namespace mySettings
 {
     public class ConfigurationSettings
     {
+
+        public BotSettings bot;
+        public CachetSettings cachet;
+
+        public ConfigurationSettings(BotSettings botSettings, CachetSettings cachetSettings)
+        {
+            this.bot = botSettings;
+            this.cachet = cachetSettings;
+        }
+
         public class BotSettings
         {
 
-            public string[] adminIds;
+            private string[] adminIds;
             private string botId;
-
-            public BotSettings()
-            {
-                this.botId = "";
-                this.adminIds = new string[];
-            }
 
             public BotSettings(string BotId, string[] AdminIds)
             {
@@ -40,15 +44,23 @@ namespace mySettings
             public string BotId { get => botId; set => botId = value; }
         }
 
-
         public class CachetSettings
         {
+            private string CachetHost;
+            private string CachetAPIToken;
+            private bool UseSSL;
 
+            public CachetSettings(string Hostname, string APIToken, bool UseSSL = true)
+            {
+                this.CachetHost = Hostname;
+                this.CachetAPIToken = APIToken;
+                this.UseSSL = UseSSL;
+            }
 
-
+            public string CachetHost { get => this.CachetHost; set => this.CachetHost = value; }
+            public string CachetAPIToken { get => this.CachetAPIToken; set => this.CachetAPIToken = value; }
+            public bool UseSSL { get => this.UseSSL; set => this.UseSSL = value; }
         }
-
-
 
     }
 
