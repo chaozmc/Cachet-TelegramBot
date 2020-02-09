@@ -9,38 +9,6 @@ namespace Helpers
 	
 	public class HelperFunctions
 	{
-		
-		public static BotSettings InitializeSettingsObject(string fromFile)
-		{
-
-			StreamReader sr = new StreamReader(fromFile);
-			JsonTextReader jsonTextReader = new JsonTextReader(sr)
-			{
-				SupportMultipleContent = true
-			};
-
-			while (jsonTextReader.Read())
-			{
-				JsonSerializer serializer = new JsonSerializer();
-				return serializer.Deserialize<BotSettings>(jsonTextReader);
-			}
-			sr.Close();
-			return new BotSettings();
-
-		}
-
-		public static void WriteSettingsToFile(BotSettings settingsObject, string targetPath)
-		{
-
-			StreamWriter sw = new StreamWriter(targetPath);
-			JsonTextWriter textWriter = new JsonTextWriter(sw);
-			JsonSerializer serializer = new JsonSerializer();
-			serializer.Serialize(textWriter, settingsObject);
-			sw.Flush();
-			sw.Close();
-
-		}
-
 		public static IList<string> AnalyzeMessageForCommands(string msg, mySettings.CachetSettings cachetSettings)
 		{
 			switch (msg)
@@ -159,54 +127,4 @@ public class CachetComponent
 		this.Status = newStatusId;
 
 	}
-}
-
-
-public class BotSettings
-{
-
-	public string StrToken { get; set; }
-	public string StrAdminChatId { get; set; }
-
-
-	public BotSettings(string tokenString, string chatIdString)
-	{
-
-		this.StrToken = tokenString;
-		this.StrAdminChatId = chatIdString;
-	}
-
-	public BotSettings()
-	{
-
-		this.StrToken = "";
-		this.StrAdminChatId = "";
-	}
-
-	public string GetToken()
-	{
-		return this.StrToken;
-	}
-
-	public string GetAdminChatId()
-	{
-
-		return this.StrAdminChatId;
-	}
-
-	public void SetToken(string newTokenId)
-	{
-
-		StrToken = newTokenId;
-
-	}
-
-	public void SetAdminChadId(string newAdminChatId)
-	{
-
-		StrAdminChatId = newAdminChatId;
-
-	}
-
-
 }

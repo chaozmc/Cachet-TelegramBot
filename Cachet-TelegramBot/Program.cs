@@ -14,7 +14,6 @@ namespace Cachet_TelegramBot
 
         private static void Main(string[] args)
         {
-
             Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " is running.");
             Console.WriteLine("");
