@@ -7,14 +7,14 @@ namespace Cachet_TelegramBot
     internal class Program
     {
         private static Telegram.Bot.TelegramBotClient bot;
-        private static BotSettings botSettings = new BotSettings();
-        private static CachetConnection MyCachetConnection = new CachetConnection("XXXXXXXXXXXXXXXXX", true, "XXXXXXXXXXXXXXXX");
+        private static mySettings.ConfigurationSettings ConfigurationSettings;
         private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\settings.json";
         private const string newLine = "\r\n";
         public static bool IShouldRun = false;
 
         private static void Main(string[] args)
         {
+
             Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine(System.Reflection.Assembly.GetExecutingAssembly().GetName().Name + " is running.");
             Console.WriteLine("");
@@ -95,7 +95,7 @@ namespace Cachet_TelegramBot
             {
                 try
                 {
-                    botSettings = Helpers.HelperFunctions.InitializeSettingsObject(mySettingsFilePath);
+                    ConfigurationSettings = mySettings.ConfigurationSettings.LoadConfigurationSettings(mySettingsFilePath);
                 }
                 catch (Exception ex)
                 {
@@ -113,7 +113,7 @@ namespace Cachet_TelegramBot
 
             try
             {
-                bot = new Telegram.Bot.TelegramBotClient(botSettings.StrToken);
+                bot = new Telegram.Bot.TelegramBotClient(ConfigurationSettings.TelegramBot.BotId);
                 bot.OnMessage += ReceiveMessageInteractive;
             }
             catch (Exception ex)
@@ -138,7 +138,7 @@ namespace Cachet_TelegramBot
             //Try to load the Bot-Settings from the file. On error, exit the application and write out the exception message
             try
             {
-                botSettings = Helpers.HelperFunctions.InitializeSettingsObject(mySettingsFilePath);
+                ConfigurationSettings = mySettings.ConfigurationSettings.LoadConfigurationSettings(mySettingsFilePath);
             }
             catch (Exception ex)
             {
@@ -150,7 +150,7 @@ namespace Cachet_TelegramBot
             //Try to initialize the bot object. On error, write the error to the console and exit.
             try
             {
-                bot = new Telegram.Bot.TelegramBotClient(botSettings.StrToken);
+                bot = new Telegram.Bot.TelegramBotClient(ConfigurationSettings.TelegramBot.BotId);
                 bot.OnMessage += ReceiveMessageNonInteractive;
             }
             catch (Exception ex)
@@ -177,20 +177,26 @@ namespace Cachet_TelegramBot
 
             Console.WriteLine("");
 
-            Console.Write("\r\nEnter the ChatId: ");
-            string chatId = Console.ReadLine();
+            Console.Write("\r\nEnter an AdminId: ");
+            string adminId = Console.ReadLine();
 
-            botSettings.SetToken(strToken);
-            botSettings.SetAdminChadId(chatId);
+            ConfigurationSettings.TelegramBot.BotId = strToken;
+            ConfigurationSettings.TelegramBot.AddAdminId(adminId);
 
             Console.WriteLine("");
-            Console.WriteLine("Token set to: " + botSettings.StrToken);
-            Console.WriteLine("ChatId set to: " + botSettings.StrAdminChatId);
+            Console.WriteLine("Token set to: " + ConfigurationSettings.TelegramBot.BotId);
+            Console.Write("Admin-IDs set to: ");
+            foreach (string ID in ConfigurationSettings.TelegramBot.AdminIds)
+            {
+                Console.Write(ID + ", ");
+            }
+
+            Console.WriteLine("");
             Console.WriteLine("");
 
             if (permanent)
             {
-                Helpers.HelperFunctions.WriteSettingsToFile(botSettings, mySettingsFilePath);
+                ConfigurationSettings.SaveSettingsToFile(mySettingsFilePath);
                 Console.WriteLine("Written to file.");
             }
             else
@@ -264,8 +270,8 @@ namespace Cachet_TelegramBot
                 "**********************************************************************************" + newLine +
                 "*  =>  Display Token and ChatId                                                  *" + newLine +
                 "**********************************************************************************" + newLine +
-                "   Token : " + botSettings.StrToken + newLine +
-                "   ChatId: " + botSettings.StrAdminChatId + newLine +
+                "   Token : " + ConfigurationSettings.TelegramBot.BotId + newLine +
+                "   ChatId: " + ConfigurationSettings.TelegramBot.ReturnAdminIdsAsCsv() + newLine +
                 "   Bot-ID: " + bot.GetMeAsync().Result.Id + newLine +
                 "   Status: " + bot.GetMeAsync().Result.FirstName + " is ready to serve, master!" + newLine +
                 "" + newLine;
@@ -297,20 +303,23 @@ namespace Cachet_TelegramBot
                 Console.WriteLine("");
                 Console.Write("\r\nMessage: ");
                 string msgToSend = Console.ReadLine();
-                await SendMessageAsync(msgToSend);
+                foreach (string AdminId in ConfigurationSettings.TelegramBot.ReturnAdminIds())
+                {
+                    await SendMessageAsync(msgToSend, AdminId);
+                }
             }
 
         }
 
-        private static async System.Threading.Tasks.Task SendMessageAsync(string msg)
-        {
-            Message message = await bot.SendTextMessageAsync(
-                chatId: botSettings.StrAdminChatId,
-                text: msg,
-                parseMode: ParseMode.Html,
-                disableNotification: false
-                );
-        }
+        //private static async System.Threading.Tasks.Task SendMessageAsync(string msg)
+        //{
+        //    Message message = await bot.SendTextMessageAsync(
+        //        chatId: ConfigurationSettings.TelegramBot.ReturnAdminIdsAsCsv(),
+        //        text: msg,
+        //        parseMode: ParseMode.Html,
+        //        disableNotification: false
+        //        ); ;
+        //}
 
         private static async System.Threading.Tasks.Task SendMessageAsync(string msg, string chatid)
         {
@@ -352,33 +361,40 @@ namespace Cachet_TelegramBot
         private static async void ReceiveMessageNonInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             string senderChatId = e.Message.Chat.Id.ToString();
-            string senderName = e.Message.Chat.FirstName;
-            string senderLastName = e.Message.Chat.LastName;
-            string msg = e.Message.Text;
-            Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
-            string answerConcatenated = "";
-            foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, MyCachetConnection))
+            
+            if (ConfigurationSettings.TelegramBot.IsChatIdInAdminIds(senderChatId))
             {
-                answerConcatenated = answerConcatenated + s + newLine;
+                string senderName = e.Message.Chat.FirstName;
+                string senderLastName = e.Message.Chat.LastName;
+                string msg = e.Message.Text;
+                Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
+                string answerConcatenated = "";
+                foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, ConfigurationSettings.CachetInstance))
+                {
+                    answerConcatenated = answerConcatenated + s + newLine;
+                }
+                await SendMessageAsync(answerConcatenated, senderChatId);
             }
-            await SendMessageAsync(answerConcatenated);
+            
         }
 
         private static async void ReceiveMessageInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
         {
             string senderChatId = e.Message.Chat.Id.ToString();
-            string senderName = e.Message.Chat.FirstName;
-            string senderLastName = e.Message.Chat.LastName;
-            string msg = e.Message.Text;
-            Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
-            string answerConcatenated = "";
-            foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, MyCachetConnection))
+            if (ConfigurationSettings.TelegramBot.IsChatIdInAdminIds(senderChatId))
             {
-                Console.WriteLine(s);
-                answerConcatenated = answerConcatenated + s + newLine;
+                string senderName = e.Message.Chat.FirstName;
+                string senderLastName = e.Message.Chat.LastName;
+                string msg = e.Message.Text;
+                Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
+                string answerConcatenated = "";
+                foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, ConfigurationSettings.CachetInstance))
+                {
+                    Console.WriteLine(s);
+                    answerConcatenated = answerConcatenated + s + newLine;
+                }
+                await SendMessageAsync(answerConcatenated, senderChatId);
             }
-            await SendMessageAsync(answerConcatenated);
-
         }
 
         #endregion

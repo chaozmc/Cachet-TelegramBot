@@ -41,12 +41,12 @@ namespace Helpers
 
 		}
 
-		public static IList<string> AnalyzeMessageForCommands(string msg, CachetConnection cachetConnection)
+		public static IList<string> AnalyzeMessageForCommands(string msg, mySettings.CachetSettings cachetSettings)
 		{
 			switch (msg)
 			{
 				case "/list":
-					return ListOfComponents(cachetConnection);
+					return ListOfComponents(cachetSettings);
 
 				case "/shutdown":
 					if (Cachet_TelegramBot.Program.IShouldRun) {
@@ -57,9 +57,6 @@ namespace Helpers
 					}
 					return null;
 				
-
-
-
 				default:
 					IList<string> temp = new List<string>();
 					temp.Add("Command not understood");
@@ -69,7 +66,7 @@ namespace Helpers
 		}
 
 
-		public static IList<string> ListOfComponents(CachetConnection cachetConnection)
+		public static IList<string> ListOfComponents(mySettings.CachetSettings cachetSettings)
 		{
 
 			IList<string> temp = new List<string>();
@@ -78,8 +75,8 @@ namespace Helpers
 			try
 			{
 				string prot = "";
-				if (cachetConnection.UseHTTPs) { prot = "https"; } else { prot = "http"; }
-				System.Uri requestUri = new System.Uri(prot + "://" + cachetConnection.CachetHost + "/api/v1/components");
+				if (cachetSettings.UseSSL) { prot = "https"; } else { prot = "http"; }
+				System.Uri requestUri = new System.Uri(prot + "://" + cachetSettings.CachetHost + "/api/v1/components");
 
 
 				HttpWebRequest web = WebRequest.CreateHttp(requestUri);
@@ -125,29 +122,6 @@ namespace Helpers
 	}
 
 }
-
-public class CachetConnection
-{
-	public string CachetHost { get; set; }
-	public bool UseHTTPs { get; set; }
-	public string APIToken { get; set; }
-
-	public CachetConnection(string host, bool usehttp, string token)
-	{
-		this.CachetHost = host;
-		this.UseHTTPs = usehttp;
-		this.APIToken = token;
-	}
-
-	public CachetConnection()
-	{
-		this.CachetHost = "";
-		this.APIToken = "";
-		this.UseHTTPs = true;
-	}
-
-}
-
 
 public class CachetComponent
 {
