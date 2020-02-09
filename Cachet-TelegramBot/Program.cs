@@ -8,7 +8,7 @@ namespace Cachet_TelegramBot
     {
         private static Telegram.Bot.TelegramBotClient bot;
         private static mySettings.ConfigurationSettings ConfigurationSettings;
-        private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + "\\settings.json";
+        private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + System.IO.Path.DirectorySeparatorChar + "settings.json";
         private const string newLine = "\r\n";
         public static bool IShouldRun = false;
 
@@ -44,6 +44,7 @@ namespace Cachet_TelegramBot
 
                     case "-backgrounded":
                         StartUpNonInteractive();
+                        Environment.Exit(0);
                         break;
 
 
@@ -131,6 +132,7 @@ namespace Cachet_TelegramBot
             if (!System.IO.File.Exists(mySettingsFilePath))
             {
                 Console.WriteLine("Error. settings.json file not found. Unattend mode doesn't work");
+                Console.WriteLine("Location where it is expected: " + mySettingsFilePath);
                 Environment.Exit(100);
             }
 
@@ -142,6 +144,7 @@ namespace Cachet_TelegramBot
             catch (Exception ex)
             {
                 Console.WriteLine("Error while loading settings.json file. Consider reacreating it.");
+                Console.WriteLine("Location where it is expected: " + mySettingsFilePath);
                 Console.WriteLine(ex.Message);
                 Environment.Exit(101);
             }
@@ -310,16 +313,6 @@ namespace Cachet_TelegramBot
 
         }
 
-        //private static async System.Threading.Tasks.Task SendMessageAsync(string msg)
-        //{
-        //    Message message = await bot.SendTextMessageAsync(
-        //        chatId: ConfigurationSettings.TelegramBot.ReturnAdminIdsAsCsv(),
-        //        text: msg,
-        //        parseMode: ParseMode.Html,
-        //        disableNotification: false
-        //        ); ;
-        //}
-
         private static async System.Threading.Tasks.Task SendMessageAsync(string msg, string chatid)
         {
             Message message = await bot.SendTextMessageAsync(
@@ -355,6 +348,7 @@ namespace Cachet_TelegramBot
                 Console.ReadKey(true);
             }
             Console.WriteLine("Program exiting.");
+            Environment.Exit(0);
         }
 
         private static async void ReceiveMessageNonInteractive(object sender, Telegram.Bot.Args.MessageEventArgs e)
