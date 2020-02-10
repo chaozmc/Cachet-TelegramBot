@@ -9,8 +9,8 @@ namespace Cachet_TelegramBot
         private static Telegram.Bot.TelegramBotClient bot;
         private static mySettings.ConfigurationSettings ConfigurationSettings;
         private static readonly string mySettingsFilePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) + System.IO.Path.DirectorySeparatorChar + "settings.json";
-        private const string newLine = "\r\n";
         public static bool IShouldRun = false;
+        private static CachetInformation.CachetInstance myCachetInstance = new CachetInformation.CachetInstance();
 
         private static void Main(string[] args)
         {
@@ -30,7 +30,7 @@ namespace Cachet_TelegramBot
                             Console.WriteLine("");
                             Console.WriteLine("OK. Resetting...");
                             Console.WriteLine("");
-                            SetNewParameters(true);
+                            SetupDialog(true);
                         }
                         else
                         {
@@ -108,7 +108,7 @@ namespace Cachet_TelegramBot
             }
             else
             {
-                SetNewParameters(true);
+                SetupDialog(true);
             }
 
             try
@@ -168,46 +168,62 @@ namespace Cachet_TelegramBot
 
         }
 
-
-        private static void SetNewParameters(bool permanent)
+        private static void SetupDialog(bool permanent)
         {
-
             Console.Clear();
+            string setupMessage = "" +
+                    "**********************************************************************************" + CVars.newLine +
+                    "***********************************    Setup    **********************************" + CVars.newLine +
+                    "**********************************************************************************" + CVars.newLine +
+                    "*                                                                                *" + CVars.newLine;
 
-            Console.Write("Enter the Token: ");
-            string strToken = Console.ReadLine();
-
-            Console.WriteLine("");
-
-            Console.Write("\r\nEnter an AdminId: ");
-            string adminId = Console.ReadLine();
-
-            ConfigurationSettings.TelegramBot.BotId = strToken;
-            ConfigurationSettings.TelegramBot.AddAdminId(adminId);
-
-            Console.WriteLine("");
-            Console.WriteLine("Token set to: " + ConfigurationSettings.TelegramBot.BotId);
-            Console.Write("Admin-IDs set to: ");
-            foreach (string ID in ConfigurationSettings.TelegramBot.AdminIds)
-            {
-                Console.Write(ID + ", ");
+            Console.Write(setupMessage);
+            Console.Write("* Please enter the Token-ID: ");
+            string NewBotToken = Console.ReadLine();
+            Console.WriteLine("*                                                                                *");
+            Console.Write("* Please enter your first administrative ChatId: ");
+            string NewFirstAdminChatId = Console.ReadLine();
+            Console.WriteLine("*                                                                                *");
+            Console.WriteLine("* OK, next we'll setup your cachet instance.                                     *");
+            Console.Write("* Enter your Cachet's dns name (no http or https url): ");
+            string NewCachetHost = Console.ReadLine();
+            Console.WriteLine("*                                                                                *");
+            Console.Write("* Your auth-token for Cachet: ");
+            string NewCachetToken = Console.ReadLine();
+            Console.WriteLine("*                                                                                *");
+            Console.Write("* Does your Cachetserver is reachable over https? <Y/n> ");
+            ConsoleKeyInfo answer = Console.ReadKey(false);
+            while (!(answer.Key == ConsoleKey.Y || answer.Key == ConsoleKey.Enter || answer.Key == ConsoleKey.N)) {
+                Console.Write(CVars.newLine + "* Does your Cachetserver is reachable over https? <Y/n> ");
+                answer = Console.ReadKey(false);
             }
-
-            Console.WriteLine("");
-            Console.WriteLine("");
-
-            if (permanent)
+            bool useHTTPs = true;
+            if (answer.Key == System.ConsoleKey.Y || answer.Key == System.ConsoleKey.Enter)
             {
-                ConfigurationSettings.SaveSettingsToFile(mySettingsFilePath);
-                Console.WriteLine("Written to file.");
+                useHTTPs = true;
             }
             else
             {
-                Console.WriteLine("Saved only to memory. It will be lost on next startup");
+                useHTTPs = false;
             }
 
+            Console.WriteLine("*                                                                                *");
+            Console.WriteLine("* Congratulation. Setup completed.                                               *");
 
-            System.Threading.Thread.Sleep(2000);
+
+            mySettings.BotSettings NewBotSettings = new mySettings.BotSettings(NewBotToken, new string[] { NewFirstAdminChatId });
+            mySettings.CachetSettings NewCachetSettings = new mySettings.CachetSettings(NewCachetHost, NewCachetToken, useHTTPs);
+            ConfigurationSettings = new mySettings.ConfigurationSettings(NewBotSettings, NewCachetSettings);
+
+            if (permanent) { 
+                ConfigurationSettings.SaveSettingsToFile(mySettingsFilePath);
+                Console.WriteLine("*                                                                                *");
+                Console.WriteLine("* File settings.json saved.                                                      *");
+            } else
+            {
+                Console.WriteLine("*                                                                                *");
+                Console.WriteLine("* Settings saved.                                                                *");
+            }
         }
 
         private static void DrawMainMenue()
@@ -216,24 +232,24 @@ namespace Cachet_TelegramBot
 
 
             string consoleMainMenue = "" +
-                "**********************************************************************************" + newLine +
-                "*********************************** Main Menue ***********************************" + newLine +
-                "**********************************************************************************" + newLine +
-                "*                                                                                *" + newLine +
-                "* (1) => Show status                                                             *" + newLine +
-                "* (2) => Set new token and chatid (in memory only, not written to file)          *" + newLine +
-                "* (3) => Send a test message to the configured Admin-ChatId                      *" + newLine +
-                "* (4) => Send a test message to a specific ChatId                                *" + newLine +
-                "* (5) => Start message view mode                                                 *" + newLine +
-                "* (q) => Quit                                                                    *" + newLine +
-                "*                                                                                *" + newLine +
-                "*                                                                                *" + newLine +
-                "*                                                                                *" + newLine +
-                "*                                                                                *" + newLine +
-                "**********************************************************************************" + newLine +
-                "" + newLine;
+                "**********************************************************************************" + CVars.newLine +
+                "*********************************** Main Menue ***********************************" + CVars.newLine +
+                "**********************************************************************************" + CVars.newLine +
+                "*                                                                                *" + CVars.newLine +
+                "* (1) => Show current settings                                                   *" + CVars.newLine +
+                "* (2) => Call Setupdialog (in memory only, not written to file)                  *" + CVars.newLine +
+                "* (3) => Send a test message to the configured Admin-ChatIds                     *" + CVars.newLine +
+                "* (4) => Send a test message to a specific ChatId                                *" + CVars.newLine +
+                "* (5) => Start message view mode                                                 *" + CVars.newLine +
+                "* (q) => Quit                                                                    *" + CVars.newLine +
+                "*                                                                                *" + CVars.newLine +
+                "*                                                                                *" + CVars.newLine +
+                "*                                                                                *" + CVars.newLine +
+                "*                                                                                *" + CVars.newLine +
+                "**********************************************************************************" + CVars.newLine +
+                "" + CVars.newLine;
             Console.Write(consoleMainMenue);
-            Console.Write(newLine + "Select: ");
+            Console.Write(CVars.newLine + "Select: ");
 
             switch (Console.ReadLine())
             {
@@ -241,7 +257,7 @@ namespace Cachet_TelegramBot
                     PrintParameters();
                     break;
                 case "2":
-                    SetNewParameters(false);
+                    SetupDialog(false);
                     DrawMainMenue();
                     break;
                 case "3":
@@ -269,16 +285,19 @@ namespace Cachet_TelegramBot
         {
             Console.Clear();
             string displayMenue = "" +
-                "**********************************************************************************" + newLine +
-                "*  =>  Display Token and ChatId                                                  *" + newLine +
-                "**********************************************************************************" + newLine +
-                "   Token : " + ConfigurationSettings.TelegramBot.BotId + newLine +
-                "   ChatId: " + ConfigurationSettings.TelegramBot.ReturnAdminIdsAsCsv() + newLine +
-                "   Bot-ID: " + bot.GetMeAsync().Result.Id + newLine +
-                "   Status: " + bot.GetMeAsync().Result.FirstName + " is ready to serve, master!" + newLine +
-                "" + newLine;
+                "**********************************************************************************" + CVars.newLine +
+                "*  =>  Display current settings                                                  *" + CVars.newLine +
+                "**********************************************************************************" + CVars.newLine +
+                "   BotToken.........: " + ConfigurationSettings.TelegramBot.BotId + CVars.newLine +
+                "   AdminChat-IDs....: " + ConfigurationSettings.TelegramBot.ReturnAdminIdsAsCsv() + CVars.newLine +
+                "   Bot-ID...........: " + bot.GetMeAsync().Result.Id + CVars.newLine +
+                "   Status...........: " + bot.GetMeAsync().Result.FirstName + " is ready to serve, master!" + CVars.newLine +
+                "   CachetHost.......: " + ConfigurationSettings.CachetInstance.CachetHost + CVars.newLine + 
+                "   Cachet-Token.....: " + ConfigurationSettings.CachetInstance.CachetAPIToken + CVars.newLine +
+                "   SSL for Cachet...: " + ConfigurationSettings.CachetInstance.UseSSL.ToString() + CVars.newLine + 
+                "" + CVars.newLine;
             Console.Write(displayMenue);
-            Console.Write(newLine + "<Press enter to return> ");
+            Console.Write(CVars.newLine + "<Press enter to return> ");
             Console.ReadLine();
             DrawMainMenue();
 
@@ -361,11 +380,8 @@ namespace Cachet_TelegramBot
                 string senderLastName = e.Message.Chat.LastName;
                 string msg = e.Message.Text;
                 Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
-                string answerConcatenated = "";
-                foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, ConfigurationSettings.CachetInstance))
-                {
-                    answerConcatenated = answerConcatenated + s + newLine;
-                }
+                myCachetInstance.UpdateComponentsFromSource(ConfigurationSettings.CachetInstance);
+                string answerConcatenated = Helpers.HelperFunctions.AnalyzeMessageAndReturnAnswer(msg, myCachetInstance);
                 await SendMessageAsync(answerConcatenated, senderChatId);
             }
             
@@ -380,12 +396,8 @@ namespace Cachet_TelegramBot
                 string senderLastName = e.Message.Chat.LastName;
                 string msg = e.Message.Text;
                 Console.WriteLine(senderName + " " + senderLastName + "(" + senderChatId + "): " + msg);
-                string answerConcatenated = "";
-                foreach (string s in Helpers.HelperFunctions.AnalyzeMessageForCommands(msg, ConfigurationSettings.CachetInstance))
-                {
-                    Console.WriteLine(s);
-                    answerConcatenated = answerConcatenated + s + newLine;
-                }
+                myCachetInstance.UpdateComponentsFromSource(ConfigurationSettings.CachetInstance);
+                string answerConcatenated = Helpers.HelperFunctions.AnalyzeMessageAndReturnAnswer(msg, myCachetInstance);
                 await SendMessageAsync(answerConcatenated, senderChatId);
             }
         }
